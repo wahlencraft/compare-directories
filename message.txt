@@ -1,0 +1,9 @@
+Program för att kolla att filerna i två sökvägar är lika.
+
+För att säkerställa att inga filer missats bör programmet köras 2 gånger, med
+omvänd ordning på sökvägarna. Separera de två sökvägarna med mellanslag.
+Programmet kan köras hur många gånger som helst utan att startas om, även om
+filerna som ska kollas har ändrats. Vill du byta sökvägar att kontrollera kan
+du ange n, och om du vill byta plats på sökvägarna kan du ange b.
+
+Avsluta programmet med q (eller Ctrl + C)
