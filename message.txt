@@ -6,4 +6,7 @@ Programmet kan köras hur många gånger som helst utan att startas om, även om
 filerna som ska kollas har ändrats. Vill du byta sökvägar att kontrollera kan
 du ange n, och om du vill byta plats på sökvägarna kan du ange b.
 
+Du kan också spara sökvägar i filen paths.txt, då kan du komma åt dem med
+kommandot f i stället för att skriva en ny sökväg.
+
 Avsluta programmet med q (eller Ctrl + C)
