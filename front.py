@@ -68,7 +68,28 @@ class Home(tk.Frame):
 class ComparePaths(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        self.controller = controller
+
         tk.Label(self, text="Comparing paths").pack()
+
+        paths = tk.Frame(self)
+        self.left_path = tk.Entry(paths)
+        self.right_path = tk.Entry(paths)
+        self.left_path.insert(0, self.controller.main_path)
+        self.right_path.insert(0, self.controller.comp_path)
+        self.left_path.grid(row=0, column=0)
+        self.right_path.grid(row=0, column=2)
+        tk.Button(paths, text="Switch", command=self.switch) \
+            .grid(row=0, column=1)
+        tk.Button(paths, text="Reload", command=self.reload) \
+            .grid(row=0, column=3)
+        paths.pack()
+
+    def switch(self):
+        pass
+
+    def reload(self):
+        pass
 
 if __name__ == "__main__":
     Windows()
