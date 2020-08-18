@@ -20,6 +20,39 @@ class ComparePaths:
         print(main_list, "\n\n", comp_list)
         # Find files in comp_list that isn't in main_list
 
+        comp = comp_list.pop()
+        main = main_list.pop()
+        not_found_list = []
+        different_size_list = []
+        print()
+        print(comp, main)
+        while comp_list:
+            if comp < main:
+                # comp is before in the que
+                if main_list:
+                    main = main_list.pop()
+                else:
+                    # main_list is empty
+                    not_found_list.append(comp)
+                    not_found_list += comp_list
+                    comp_list = []
+            elif comp > main:
+                # comp is after in the que, comp was missed
+                not_found_list.append(comp)
+                comp = comp_list.pop()
+            elif comp == main:
+                # comp and main has the same name
+                if comp.size != main.size:
+                    different_size_list.append(comp)
+                comp = comp_list.pop()
+                main = main_list.pop()
+        print("Not found:\n", not_found_list)
+        print("\nDifferent size:\n", different_size_list)
+
+
+
+
+
 
 
     @staticmethod
@@ -55,6 +88,12 @@ class File:
         if not isinstance(other, File):
             return TypeError(f"Cant compare File to {type(other)}")
         return self.name < other.name
+
+    def __eq__(self, other):
+        if not isinstance(other, File):
+            return TypeError(f"Cant compare File to {type(other)}")
+        return self.name == other.name
+
 
     def __repr__(self):
         return f"File({self.name}, {self.dirpath})"
