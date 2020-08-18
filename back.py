@@ -6,22 +6,30 @@ class ComparePaths:
     def __init__(self, main_path, comp_path):
         self.main_path = main_path
         self.comp_path = comp_path
-        # Find basepath
-        lst1 = self.split(main_path)
-        lst2 = self.split(comp_path)
+        # # Find basepath
+        # lst1 = self.split(main_path)
+        # lst2 = self.split(comp_path)
         # while True:
-        #     if lst1[0]
+        #     for i in range(len(lst2)):
+        #
 
-        # Walk the main path
-        main_list = []
-        for dirpath, dirnames, filenames in os.walk(self.main_path):
+        # Walk the paths
+        main_list = self.get_files(self.main_path)
+        comp_list = self.get_files(self.comp_path)
+
+        print(main_list, "\n\n", comp_list)
+        # Find files in comp_list that isn't in main_list
+
+
+
+    @staticmethod
+    def get_files(path):
+        """Find all files in a path, return sorted list."""
+        lst = []
+        for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                main_list.append(self.get_data(filename, dirpath))
-
-    def get_data(filename, dirpath):
-        """Create a dictonary with all data needed for this file."""
-        data = {"name": filename}
-        return data
+                lst.append(File(filename, dirpath))
+        return sorted(lst)
 
     @staticmethod
     def split(path, lst=None):
@@ -34,6 +42,29 @@ class ComparePaths:
         lst.insert(0, base)
         return ComparePaths.split(new_path, lst)
 
+class File:
+    """Store data for a file, is comparable."""
+
+    def __init__(self, filename, dirpath):
+        self.name = filename
+        self.folder = os.path.basename(dirpath)
+        self.size = os.path.getsize(os.path.join(dirpath, filename))
+        self.dirpath = dirpath
+
+    def __lt__(self, other):
+        if not isinstance(other, File):
+            return TypeError(f"Cant compare File to {type(other)}")
+        return self.name < other.name
+
+    def __repr__(self):
+        return f"File({self.name}, {self.dirpath})"
+
+    def __str__(self):
+        return self.name
+
+
+
 if __name__ == "__main__":
-    test_path_1 = "/home/albin/Documents/text.txt"
-    print(ComparePaths.split(test_path_1))
+    test_path_1 = "/media/albin/HDD/Documents/Ämnen (old)"
+    test_path_2 = "/media/albin/HDD/Documents/Ämnen"
+    ComparePaths(test_path_2, test_path_1)
