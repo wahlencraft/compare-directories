@@ -1,5 +1,6 @@
 import tkinter as tk
 import os
+from back import ComparePaths
 
 class Windows(tk.Tk):
     """Backend for window management."""
@@ -44,6 +45,12 @@ class Home(tk.Frame):
         self.main_path_entry.grid(row=0, column=1)
         self.comp_path_entry = tk.Entry(path_input)
         self.comp_path_entry.grid(row=1, column=1)
+        # REMOVE (for testing purposes)
+        test_path_1 = "/media/albin/HDD/Documents/Ämnen (old)"
+        test_path_2 = "/media/albin/HDD/Documents/Ämnen"
+        self.main_path_entry.insert(0, test_path_2)
+        self.comp_path_entry.insert(0, test_path_1)
+
         path_input.pack()
 
         tk.Button(self, text="Done", command=self.done).pack()
@@ -62,10 +69,10 @@ class Home(tk.Frame):
             self.controller.main_path = self.main_path_entry.get()
             self.controller.comp_path = self.comp_path_entry.get()
             self.destroy()
-            self.controller.create_frames(ComparePaths)
-            self.controller.show_frame(ComparePaths)
+            self.controller.create_frames(ComparePathsWindow)
+            self.controller.show_frame(ComparePathsWindow)
 
-class ComparePaths(tk.Frame):
+class ComparePathsWindow(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -85,11 +92,29 @@ class ComparePaths(tk.Frame):
             .grid(row=0, column=3)
         paths.pack()
 
-    def switch(self):
-        pass
+        self.bottom = tk.Frame(self)
+        tk.Button(self.bottom, text="Start", command=self.start).pack()
+        self.bottom.pack()
 
     def reload(self):
         pass
+
+    def start(self):
+        """Run the comparison."""
+        self.bottom.destroy()
+        self.bottom = tk.Frame()
+        msg = tk.Label(self.bottom, text="Comparing")
+        msg.pack()
+        self.compare_paths = ComparePaths(self.controller.main_path,
+                                          self.controller.comp_path)
+        msg.destroy()
+        self.bottom.pack()
+
+
+    def switch(self):
+        pass
+
+
 
 if __name__ == "__main__":
     Windows()

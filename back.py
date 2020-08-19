@@ -6,13 +6,6 @@ class ComparePaths:
     def __init__(self, main_path, comp_path):
         self.main_path = main_path
         self.comp_path = comp_path
-        # # Find basepath
-        # lst1 = self.split(main_path)
-        # lst2 = self.split(comp_path)
-        # while True:
-        #     for i in range(len(lst2)):
-        #
-
         # Walk the paths
         main_list = self.get_files(self.main_path)
         comp_list = self.get_files(self.comp_path)
@@ -22,8 +15,8 @@ class ComparePaths:
 
         comp = comp_list.pop()
         main = main_list.pop()
-        not_found_list = []
-        different_size_list = []
+        self.not_found = []
+        self.changed = []
         print()
         print(comp, main)
         while comp_list:
@@ -33,27 +26,21 @@ class ComparePaths:
                     main = main_list.pop()
                 else:
                     # main_list is empty
-                    not_found_list.append(comp)
-                    not_found_list += comp_list
+                    self.not_found.append(comp)
+                    self.not_found += comp_list
                     comp_list = []
             elif comp > main:
                 # comp is after in the que, comp was missed
-                not_found_list.append(comp)
+                self.not_found.append(comp)
                 comp = comp_list.pop()
             elif comp == main:
                 # comp and main has the same name
                 if comp.size != main.size:
-                    different_size_list.append(comp)
+                    self.changed.append(comp)
                 comp = comp_list.pop()
                 main = main_list.pop()
-        print("Not found:\n", not_found_list)
-        print("\nDifferent size:\n", different_size_list)
-
-
-
-
-
-
+        print("Not found:\n", self.not_found)
+        print("\nDifferent size:\n", self.changed)
 
     @staticmethod
     def get_files(path):
@@ -104,6 +91,8 @@ class File:
 
 
 if __name__ == "__main__":
+    import cProfile
+
     test_path_1 = "/media/albin/HDD/Documents/Ämnen (old)"
     test_path_2 = "/media/albin/HDD/Documents/Ämnen"
-    ComparePaths(test_path_2, test_path_1)
+    cProfile.run("ComparePaths(test_path_2, test_path_1)")
