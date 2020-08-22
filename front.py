@@ -49,12 +49,25 @@ class ComparePathsWindow(tk.Frame):
         self.right_path.grid(row=1, column=2)
         tk.Button(paths, text="Swap", command=self.swap) \
             .grid(row=1, column=1)
-        tk.Button(paths, text="Reload", command=self.reload) \
+        self.load_str = tk.StringVar(value="Load")
+        tk.Button(paths, textvariable=self.load_str, command=self.load) \
             .grid(row=1, column=3)
         paths.pack()
 
-    def reload(self):
-        pass
+    def load(self):
+        """Start the commaparison."""
+        self.load_str.set("Reload")
+        paths = []
+        for entry in (self.left_path, self.right_path):
+            path = entry.get()
+            if not os.path.exists(path):
+                entry.config(foreground="red")
+            else:
+                entry.config(foreground="black")
+                paths.append(path)
+        if len(paths) != 2:
+            return
+        compare_paths = ComparePaths(paths[0], paths[1])
 
     def swap(self):
         """Swap the text of the two entrys."""
