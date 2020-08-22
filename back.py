@@ -36,12 +36,16 @@ class ComparePaths:
                 # comp is after in the que, comp was missed
                 self.not_found.append(comp)
                 comp = comp_list.pop()
-            elif comp == main:
+            elif comp.name == main.name:
                 # comp and main has the same name
                 if comp.size != main.size:
                     self.changed.append((main, comp))
-                comp = comp_list.pop()
-                main = main_list.pop()
+                if main_list:
+                    comp = comp_list.pop()
+                    main = main_list.pop()
+                else:
+                    # main_list is empty
+                    comp_list = []
         print("Not found:\n", self.not_found)
         print("\nDifferent size:\n", self.changed)
 
@@ -86,7 +90,10 @@ class File:
     def __eq__(self, other):
         if not isinstance(other, File):
             return TypeError(f"Cant compare File to {type(other)}")
-        return self.name == other.name
+        if self.__repr__ == other.__repr__:
+            return True
+        else:
+            return False
 
 
     def __repr__(self):
