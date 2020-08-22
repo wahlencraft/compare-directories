@@ -47,7 +47,7 @@ class ComparePathsWindow(tk.Frame):
         self.right_path.insert(0, "/media/albin/HDD/Documents/Ämnen (old)")
         self.left_path.grid(row=1, column=0)
         self.right_path.grid(row=1, column=2)
-        tk.Button(paths, text="Switch", command=self.switch) \
+        tk.Button(paths, text="Swap", command=self.swap) \
             .grid(row=1, column=1)
         tk.Button(paths, text="Reload", command=self.reload) \
             .grid(row=1, column=3)
@@ -56,8 +56,14 @@ class ComparePathsWindow(tk.Frame):
     def reload(self):
         pass
 
-    def switch(self):
-        pass
+    def swap(self):
+        """Swap the text of the two entrys."""
+        old_left = self.left_path.get()
+        old_right = self.right_path.get()
+        self.left_path.delete(0, "end")
+        self.right_path.delete(0, "end")
+        self.left_path.insert(0, old_right)
+        self.right_path.insert(0, old_left)
 
 
 
