@@ -13,7 +13,7 @@ class Windows(tk.Tk):
         self.title("Scan V 2.0")
         self.frames = {}
 
-        self.create_frames(Home)
+        self.create_frames(ComparePathsWindow)
 
         self.mainloop()
 
@@ -29,49 +29,6 @@ class Windows(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
-class Home(tk.Frame):
-    """The home window."""
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        self.msg = tk.StringVar()
-        self.msg.set("Please input the paths you want to compare")
-        tk.Label(self, textvar=self.msg).pack()
-
-        path_input = tk.Frame(self)
-        tk.Label(path_input, text="Main path:").grid(row=0, column=0)
-        tk.Label(path_input, text="Path to compare:").grid(row=1, column=0)
-        self.main_path_entry = tk.Entry(path_input)
-        self.main_path_entry.grid(row=0, column=1)
-        self.comp_path_entry = tk.Entry(path_input)
-        self.comp_path_entry.grid(row=1, column=1)
-        # REMOVE (for testing purposes)
-        test_path_1 = "/media/albin/HDD/Documents/Ämnen (old)"
-        test_path_2 = "/media/albin/HDD/Documents/Ämnen"
-        self.main_path_entry.insert(0, test_path_2)
-        self.comp_path_entry.insert(0, test_path_1)
-
-        path_input.pack()
-
-        tk.Button(self, text="Done", command=self.done).pack()
-
-    def done(self):
-        """Button click."""
-        passed = True
-        for entry in (self.main_path_entry, self.comp_path_entry):
-            entry["foreground"] = "black"
-            path = entry.get()
-            if not os.path.exists(path):
-                entry["foreground"] = "red"
-                passed = False
-                self.msg.set("Please make sure the paths exists")
-        if passed:
-            self.controller.main_path = self.main_path_entry.get()
-            self.controller.comp_path = self.comp_path_entry.get()
-            self.destroy()
-            self.controller.create_frames(ComparePathsWindow)
-            self.controller.show_frame(ComparePathsWindow)
-
 class ComparePathsWindow(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -80,36 +37,24 @@ class ComparePathsWindow(tk.Frame):
         tk.Label(self, text="Comparing paths").pack()
 
         paths = tk.Frame(self)
-        self.left_path = tk.Entry(paths)
-        self.right_path = tk.Entry(paths)
-        self.left_path.insert(0, self.controller.main_path)
-        self.right_path.insert(0, self.controller.comp_path)
-        self.left_path.grid(row=0, column=0)
-        self.right_path.grid(row=0, column=2)
+        entry_width = 40
+        tk.Label(paths, text="Main path").grid(row=0, column=0)
+        tk.Label(paths, text="Path to compare").grid(row=0, column=2)
+        self.left_path = tk.Entry(paths, width=entry_width)
+        self.right_path = tk.Entry(paths, width=entry_width)
+        # REMOVE, temporary for testing
+        self.left_path.insert(0, "/media/albin/HDD/Documents/Ämnen")
+        self.right_path.insert(0, "/media/albin/HDD/Documents/Ämnen (old)")
+        self.left_path.grid(row=1, column=0)
+        self.right_path.grid(row=1, column=2)
         tk.Button(paths, text="Switch", command=self.switch) \
-            .grid(row=0, column=1)
+            .grid(row=1, column=1)
         tk.Button(paths, text="Reload", command=self.reload) \
-            .grid(row=0, column=3)
+            .grid(row=1, column=3)
         paths.pack()
-
-        self.bottom = tk.Frame(self)
-        tk.Button(self.bottom, text="Start", command=self.start).pack()
-        self.bottom.pack()
 
     def reload(self):
         pass
-
-    def start(self):
-        """Run the comparison."""
-        self.bottom.destroy()
-        self.bottom = tk.Frame()
-        msg = tk.Label(self.bottom, text="Comparing")
-        msg.pack()
-        self.compare_paths = ComparePaths(self.controller.main_path,
-                                          self.controller.comp_path)
-        msg.destroy()
-        self.bottom.pack()
-
 
     def switch(self):
         pass
