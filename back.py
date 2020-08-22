@@ -39,7 +39,7 @@ class ComparePaths:
             elif comp == main:
                 # comp and main has the same name
                 if comp.size != main.size:
-                    self.changed.append(comp)
+                    self.changed.append((main, comp))
                 comp = comp_list.pop()
                 main = main_list.pop()
         print("Not found:\n", self.not_found)
@@ -94,6 +94,14 @@ class File:
 
     def __str__(self):
         return self.name
+
+    def get_size(self):
+        """Get size as a string with appropirate unit."""
+        units = ("B", "KB", "MB", "GB", "TB")
+        for i, unit in enumerate(units):
+            high = 10**(i*3)
+            if self.size < high*1000:
+                return f"{round(self.size/high, 3)} {unit}"
 
 
 
