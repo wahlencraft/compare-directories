@@ -1,9 +1,14 @@
 import tkinter as tk
 import os
 from back import ComparePaths
+from PIL import Image
 
 class Windows(tk.Tk):
     """Backend for window management."""
+
+    large_font = ("Courier Bold", 25)
+    small_font = ("Courier", 10)
+
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.container = tk.Frame(self)
@@ -68,6 +73,21 @@ class ComparePathsWindow(tk.Frame):
         if len(paths) != 2:
             return
         compare_paths = ComparePaths(paths[0], paths[1])
+        try:
+            self.bottom.destroy()
+        except AttributeError:
+            pass
+        self.bottom = tk.Frame(self)
+        tk.Label(self.bottom, text="Missing files:",
+                 font=self.controller.large_font) \
+                 .grid(row=0, column=0, sticky="w")
+        for i, file in enumerate(compare_paths.not_found, start=1):
+            tk.Label(self.bottom, text=file.long_name) \
+                .grid(row=i, column=0, sticky="w", padx=(10, 0))
+            tk.Button(self.bottom, text="Open",
+                      font=self.controller.small_font, pady=0,
+                      command=self.open_file(file)).grid(row=i, column=1)
+        self.bottom.pack(fill="both")
 
     def swap(self):
         """Swap the text of the two entrys."""
@@ -77,6 +97,15 @@ class ComparePathsWindow(tk.Frame):
         self.right_path.delete(0, "end")
         self.left_path.insert(0, old_right)
         self.right_path.insert(0, old_left)
+
+    @staticmethod
+    def open_file(file):
+        """Wrapper for opening a back.File file."""
+        path = file.full_name
+        def func(path=path):
+            os.startfile(path)
+        return func
+
 
 
 

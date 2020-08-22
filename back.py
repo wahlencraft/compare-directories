@@ -1,5 +1,7 @@
 import os
 
+DEBUG = True
+
 class ComparePaths:
     """Find all files in one directory that is missing in another."""
 
@@ -10,9 +12,10 @@ class ComparePaths:
         main_list = self.get_files(self.main_path)
         comp_list = self.get_files(self.comp_path)
 
-        print(main_list, "\n\n", comp_list)
+        if DEBUG:
+            print("Main list:", main_list)
+            print("\nComp list:", comp_list)
         # Find files in comp_list that isn't in main_list
-
         comp = comp_list.pop()
         main = main_list.pop()
         self.not_found = []
@@ -45,6 +48,8 @@ class ComparePaths:
     @staticmethod
     def get_files(path):
         """Find all files in a path, return sorted list."""
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Path {path} does not exist")
         lst = []
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -70,6 +75,8 @@ class File:
         self.folder = os.path.basename(dirpath)
         self.size = os.path.getsize(os.path.join(dirpath, filename))
         self.dirpath = dirpath
+        self.long_name = os.path.join(self.folder, self.name)
+        self.full_name = os.path.join(self.dirpath, self.name)
 
     def __lt__(self, other):
         if not isinstance(other, File):
