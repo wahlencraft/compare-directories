@@ -97,6 +97,8 @@ class ComparePathsWindow(tk.Frame):
         tk.Label(self.bottom, text="Missing files (from main):",
                  font=self.controller.large_font) \
                  .grid(row=0, column=0, sticky="w")
+        tk.Button(self.bottom, text="Apply", command=self.apply) \
+            .grid(row=0, column=6)
         for i, file in enumerate(compare_paths.not_found, start=1):
             tk.Label(self.bottom, text=file.long_name) \
                 .grid(row=i, column=0, columnspan=2, sticky="w", padx=indent)
@@ -178,6 +180,12 @@ class ComparePathsWindow(tk.Frame):
                 print("\nM", self.to_move)
                 print("D", self.to_delete)
         return func
+
+    def apply(self):
+        """Apply all changes requested by the user, delete and remove files."""
+        for file in self.to_delete:
+            file.delete()
+        self.load()
 
     def keep(self, files, id, type_=None):
         """Keep this file and remove alternetives, wrapper.

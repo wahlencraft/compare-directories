@@ -110,6 +110,9 @@ class File:
             if self.size < high*1000:
                 return f"{round(self.size/high, 3)} {unit}"
 
+    def delete(self):
+        """Delete a file permanently, use with caution."""
+        os.remove(self.full_name)
 
 
 if __name__ == "__main__":
