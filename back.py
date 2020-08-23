@@ -1,6 +1,6 @@
 import os
 
-DEBUG = True
+DEBUG = False
 
 class ComparePaths:
     """Find all files in one directory that is missing in another."""
@@ -46,41 +46,42 @@ class ComparePaths:
                 else:
                     # main_list is empty
                     comp_list = []
-        print("Not found:\n", self.not_found)
-        print("\nDifferent size:\n", self.changed)
 
     @staticmethod
-    def get_files(path):
+    def split(path, lst=None):
+        """Split a path to a list."""
+        empty = ("/", "\\", "")
+        if lst == None:
+            lst = []
+        if path in empty:
+            return lst
+        new_path, base = os.path.split(path)
+        if base in empty:
+            return [new_path] + lst
+        lst.insert(0, base)
+        return ComparePaths.split(new_path, lst)
+
+    def get_files(self, path):
         """Find all files in a path, return sorted list."""
         if not os.path.exists(path):
             raise FileNotFoundError(f"Path {path} does not exist")
         lst = []
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                lst.append(File(filename, dirpath))
+                lst.append(File(filename, dirpath, self.main_path))
         return sorted(lst)
-
-    @staticmethod
-    def split(path, lst=None):
-        """Split a path to a list."""
-        if lst == None:
-            lst = []
-        if path in ("/", "\\", ""):
-            return lst
-        new_path, base = os.path.split(path)
-        lst.insert(0, base)
-        return ComparePaths.split(new_path, lst)
 
 class File:
     """Store data for a file, is comparable."""
 
-    def __init__(self, filename, dirpath):
+    def __init__(self, filename, dirpath, main_path):
         self.name = filename
         self.folder = os.path.basename(dirpath)
         self.size = os.path.getsize(os.path.join(dirpath, filename))
         self.dirpath = dirpath
         self.long_name = os.path.join(self.folder, self.name)
         self.full_name = os.path.join(self.dirpath, self.name)
+        self.main_path = main_path  # Needed for self.move()
 
     def __lt__(self, other):
         if not isinstance(other, File):
@@ -112,12 +113,32 @@ class File:
 
     def delete(self):
         """Delete a file permanently, use with caution."""
+        print("REMOVE", self.full_name)
         os.remove(self.full_name)
+
+    def move(self):
+        """Move a file from comp to appropirate folder in main."""
+        # Find the best place to place file
+        longest_common = ""
+        long = 0
+        for dirpath, dirnames, filenames in os.walk(self.main_path):
+            current_common = os.path.commonpath([dirpath, self.full_name])
+            cur_len = len(ComparePaths.split(current_common))
+            if cur_len > long or (cur_len == long and \
+               os.path.basename(self.dirpath) == os.path.basename(dirpath)):
+                long = cur_len
+                longest_common = dirpath
+        # Move file
+        new_path = os.path.join(longest_common, self.name)
+        if os.path.isfile(new_path):
+            os.remove(new_path)
+            print("REMOVE", new_path)
+        print("RENAME", self.full_name, new_path)
+        os.rename(self.full_name, new_path)
+
 
 
 if __name__ == "__main__":
-    import cProfile
-
-    test_path_1 = "/media/albin/HDD/Documents/Ämnen (old)"
-    test_path_2 = "/media/albin/HDD/Documents/Ämnen"
-    cProfile.run("ComparePaths(test_path_2, test_path_1)")
+    path = "D:\Documents"
+    print(os.path.split(path))
+    print(ComparePaths.split(path))

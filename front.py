@@ -141,7 +141,6 @@ class ComparePathsWindow(tk.Frame):
             self.delete_buttons[j] = tk.Button(self.bottom, text="Delete both",
                                                command=self.add_to_delete(files, j))
             self.delete_buttons[j].grid(row=j, column=6, sticky="we")
-        print(self.delete_buttons)
         self.bottom.pack(fill="both")
 
     def add_to_delete(self, files, id, check_row=True):
@@ -185,6 +184,8 @@ class ComparePathsWindow(tk.Frame):
         """Apply all changes requested by the user, delete and remove files."""
         for file in self.to_delete:
             file.delete()
+        for file in self.to_move:
+            file.move()
         self.load()
 
     def keep(self, files, id, type_=None):
