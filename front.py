@@ -223,11 +223,28 @@ class ComparePathsWindow(tk.Frame):
 
     def apply(self):
         """Apply all changes requested by the user, delete and remove files."""
-        for file in self.to_delete:
-            file.delete()
-        for file in self.to_move:
-            file.move()
-        self.load()
+        def yes(root, self=self):
+            for file in self.to_delete:
+                file.delete()
+            for file in self.to_move:
+                file.move()
+            self.load()
+            root.destroy()
+
+        font = ("Segoe UI", 11)
+        num_of_files = len(self.to_delete + self.to_move)
+        if num_of_files == 0:
+            return
+        popup = tk.Tk()
+        msg = "This will delete/move {} file(s). Are you sure?"
+        tk.Label(popup, text=msg.format(num_of_files), font=font) \
+            .grid(row=0, column=0, columnspan=2)
+        tk.Button(popup, text="Yes", font=font, command=lambda: yes(popup)) \
+            .grid(row=1, column=0, sticky="we")
+        tk.Button(popup, text="No", default="active", font=font,
+                  command=popup.destroy) \
+            .grid(row=1, column=1, sticky="we")
+
 
     def keep(self, files, id, type_=None):
         """Keep this file and remove alternetives, wrapper.
