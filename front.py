@@ -59,10 +59,6 @@ class ComparePathsWindow(tk.Frame):
                                   font=controller.default_font)
         self.right_path = tk.Entry(paths, width=entry_width,
                                    font=controller.default_font)
-        # REMOVE, temporary for testing
-        self.left_path.insert(0, r"D:\Documents\Ämnen")
-        self.right_path.insert(0, r"D:\Documents\Gymnasiet")
-
         self.left_path.grid(row=1, column=0, padx=(10, 0))
         self.right_path.grid(row=1, column=2)
         tk.Button(paths, text="Swap", command=self.swap, width=5) \
