@@ -1,14 +1,13 @@
 import tkinter as tk
+import tkinter.font as tkfont
 import os
 import back
+import sys
 
 DEBUG = True
 
 class Windows(tk.Tk):
     """Backend for window management."""
-
-    large_font = ("Courier Bold", 20)
-    small_font = ("Courier", 10)
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -18,6 +17,23 @@ class Windows(tk.Tk):
         self.container.grid_columnconfigure(0, weight=1)
         self.title("Scan v. 2.0")
         self.frames = {}
+
+        # Fonts
+        self.default_font = tkfont.nametofont("TkDefaultFont")
+        self.default_font.configure(size=11)
+        self.large_font = tkfont.Font(family="Segoe UI", size=20, weight="bold")
+        self.small_font = tkfont.Font(family="Segoe UI", size=10, weight="normal")
+
+        # Get monitor_size
+        if sys.platform in ("linux", "linux2"):
+            # Linux
+            monitor_size = os.system("xrandr  | grep \* | cut -d' ' -f4")
+            # TODO
+        elif sys.platform in ("win32", "win64"):
+            # Windows
+            import ctypes
+            user32 = ctypes.windll.user32
+            self.screenheight = user32.GetSystemMetrics(1)
 
         self.create_frames(ComparePathsWindow)
 
@@ -40,24 +56,25 @@ class ComparePathsWindow(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        tk.Label(self, text="Comparing paths").pack()
+        tk.Label(self, text="Comparing paths", font=controller.large_font).pack()
 
         paths = tk.Frame(self)
-        entry_width = 40
+        entry_width = 50
         tk.Label(paths, text="Main path").grid(row=0, column=0)
         tk.Label(paths, text="Path to compare").grid(row=0, column=2)
-        self.left_path = tk.Entry(paths, width=entry_width)
-        self.right_path = tk.Entry(paths, width=entry_width)
+        self.left_path = tk.Entry(paths, width=entry_width, font=controller.default_font)
+        self.right_path = tk.Entry(paths, width=entry_width, font=controller.default_font)
         # REMOVE, temporary for testing
         self.left_path.insert(0, "D:\Documents\Ämnen")
         self.right_path.insert(0, "D:\Documents\Gymnasiet")
-        self.left_path.grid(row=1, column=0)
+
+        self.left_path.grid(row=1, column=0, padx=(10, 0))
         self.right_path.grid(row=1, column=2)
-        tk.Button(paths, text="Swap", command=self.swap) \
-            .grid(row=1, column=1)
+        tk.Button(paths, text="Swap", command=self.swap, width=5) \
+            .grid(row=1, column=1, padx=5)
         self.load_str = tk.StringVar(value="Load")
-        tk.Button(paths, textvariable=self.load_str, command=self.load) \
-            .grid(row=1, column=3)
+        tk.Button(paths, textvariable=self.load_str, command=self.load, width=5) \
+            .grid(row=1, column=3, padx=(5, 0))
         paths.pack()
 
     @staticmethod
@@ -83,65 +100,89 @@ class ComparePathsWindow(tk.Frame):
             return
         compare_paths = back.ComparePaths(paths[0], paths[1])
         try:
-            self.bottom.destroy()
+            self.bottom_container.destroy()
         except AttributeError:
             pass
-        self.bottom = tk.Frame(self)
+
+        self.bottom_container = tk.Frame(self)
+
+        bottom_head = tk.Frame(self.bottom_container)
+        tk.Button(bottom_head, text="Apply", command=self.apply) \
+            .pack(side="right")
+        bottom_head.pack(fill="both")
+
+        bottom_body = tk.Frame(self.bottom_container)
+
+            #.grid(row=0, column=1, sticky="e")
+        #, height=self.controller.screenheight*0.8
+        bottom_canvas = tk.Canvas(bottom_body)
+        scrollbar = tk.Scrollbar(bottom_body, orient="vertical", command=bottom_canvas.yview)
+        bottom = tk.Frame(bottom_canvas)
+        bottom.bind("<Configure>", lambda e: bottom_canvas.configure(scrollregion=bottom_canvas.bbox("all")))
+        bottom_canvas.create_window((0, 0), window=bottom, anchor="nw")
+        bottom_canvas.configure(yscrollcommand=scrollbar.set)
+
         indent = (10, 0)
         width = 10
+        m_len = self.controller.default_font.measure("m")
+        label_width = m_len*30
         self.delete_buttons = {}
         self.to_delete = []
         self.keep_buttons = {}
         self.to_move = []
         # Missing files
-        tk.Label(self.bottom, text="Missing files (from main):",
+        tk.Label(bottom, text="Missing files (from main):",
                  font=self.controller.large_font) \
-                 .grid(row=0, column=0, sticky="w")
-        tk.Button(self.bottom, text="Apply", command=self.apply) \
-            .grid(row=0, column=6)
+                 .grid(row=0, column=0, sticky="w", columnspan=2)
         for i, file in enumerate(compare_paths.not_found, start=1):
-            tk.Label(self.bottom, text=file.long_name) \
+            tk.Label(bottom, text=file.long_name, wraplength=label_width) \
                 .grid(row=i, column=0, columnspan=2, sticky="w", padx=indent)
-            tk.Button(self.bottom, text="Open",
-                      font=self.controller.small_font, pady=0,
+            tk.Button(bottom, text="Open",
                       command=self.open_file(file)) \
                       .grid(row=i, column=2, sticky="we")
-            self.keep_buttons[i] = tk.Button(self.bottom, text="Move",
+            self.keep_buttons[i] = tk.Button(bottom, text="Move",
                                              width=width,
                                              command=self.keep(file, i))
             self.keep_buttons[i].grid(row=i, column=4, sticky="we", padx=indent)
-            self.delete_buttons[i] = tk.Button(self.bottom, text="Delete",
+            self.delete_buttons[i] = tk.Button(bottom, text="Delete",
                                                command=self.add_to_delete(file, i))
             self.delete_buttons[i].grid(row=i, column=5, sticky="we")
         # Changed files
-        tk.Label(self.bottom, text="Changed files:",
+        tk.Label(bottom, text="Changed files:",
                  font=self.controller.large_font) \
                  .grid(row=i+1, column=0, sticky="w")
         for j, files in enumerate(compare_paths.changed, start=i+2):
             main, comp = files
-            tk.Label(self.bottom, text=main) \
+            tk.Label(bottom, text=main, wraplength=label_width) \
                 .grid(row=j, column=0, padx=indent, sticky="w")
-            tk.Label(self.bottom, text=f"{main.get_size()}/{comp.get_size()}") \
+            tk.Label(bottom, text=f"{main.get_size()}/{comp.get_size()}") \
                 .grid(row=j, column=1)
-            tk.Button(self.bottom, text="Open main",
+            tk.Button(bottom, text="Open main",
                       command=self.open_file(main)) \
                       .grid(row=j, column=2, sticky="we")
-            tk.Button(self.bottom, text="Open other",
+            tk.Button(bottom, text="Open other",
                       command=self.open_file(comp)) \
                       .grid(row=j, column=3, sticky="we")
             self.keep_buttons[j] = {}
-            self.keep_buttons[j]["main"] = tk.Button(self.bottom,
+            self.keep_buttons[j]["main"] = tk.Button(bottom,
                                                      text="Keep main",
                                                      command=self.keep(files, j, "main"))
             self.keep_buttons[j]["main"].grid(row=j, column=4, padx=indent, sticky="we")
-            self.keep_buttons[j]["comp"] = tk.Button(self.bottom, text="Keep other",
-
+            self.keep_buttons[j]["comp"] = tk.Button(bottom, text="Keep other",
                                                      command=self.keep(files, j, "comp"))
             self.keep_buttons[j]["comp"].grid(row=j, column=5, sticky="we")
-            self.delete_buttons[j] = tk.Button(self.bottom, text="Delete both",
+            self.delete_buttons[j] = tk.Button(bottom, text="Delete both",
                                                command=self.add_to_delete(files, j))
             self.delete_buttons[j].grid(row=j, column=6, sticky="we")
-        self.bottom.pack(fill="both")
+        for i in range(4):
+            bottom.grid_columnconfigure(i, weight=1)
+        #bottom.grid(row=0, column=0, sticky="nwe")
+        bottom_canvas.pack(side="left", fill="both", expand=True)
+        # bottom_canvas.grid(row=1, column=0, sticky="nsew")
+        scrollbar.pack(side="left", fill="y", pady=5)
+        #scrollbar.grid(row=1, column=1, sticky="nse")
+        bottom_body.pack(fill="both", expand=True)
+        self.bottom_container.pack(fill="both", expand=True)
 
     def add_to_delete(self, files, id, check_row=True):
         """Mark a file for deletion, wrapper.
