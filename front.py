@@ -2,9 +2,9 @@ import tkinter as tk
 import tkinter.font as tkfont
 import os
 import back
-import sys
 
 DEBUG = True
+
 
 class Windows(tk.Tk):
     """Backend for window management."""
@@ -21,19 +21,10 @@ class Windows(tk.Tk):
         # Fonts
         self.default_font = tkfont.nametofont("TkDefaultFont")
         self.default_font.configure(size=11)
-        self.large_font = tkfont.Font(family="Segoe UI", size=20, weight="bold")
-        self.small_font = tkfont.Font(family="Segoe UI", size=10, weight="normal")
-
-        # Get monitor_size
-        if sys.platform in ("linux", "linux2"):
-            # Linux
-            monitor_size = os.system("xrandr  | grep \* | cut -d' ' -f4")
-            # TODO
-        elif sys.platform in ("win32", "win64"):
-            # Windows
-            import ctypes
-            user32 = ctypes.windll.user32
-            self.screenheight = user32.GetSystemMetrics(1)
+        self.large_font = tkfont.Font(family="Segoe UI", size=20,
+                                      weight="bold")
+        self.small_font = tkfont.Font(family="Segoe UI", size=10,
+                                      weight="normal")
 
         self.create_frames(ComparePathsWindow)
 
@@ -51,37 +42,41 @@ class Windows(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
+
 class ComparePathsWindow(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        tk.Label(self, text="Comparing paths", font=controller.large_font).pack()
+        tk.Label(self, text="Comparing paths", font=controller.large_font) \
+            .pack()
 
         paths = tk.Frame(self)
         entry_width = 50
         tk.Label(paths, text="Main path").grid(row=0, column=0)
         tk.Label(paths, text="Path to compare").grid(row=0, column=2)
-        self.left_path = tk.Entry(paths, width=entry_width, font=controller.default_font)
-        self.right_path = tk.Entry(paths, width=entry_width, font=controller.default_font)
+        self.left_path = tk.Entry(paths, width=entry_width,
+                                  font=controller.default_font)
+        self.right_path = tk.Entry(paths, width=entry_width,
+                                   font=controller.default_font)
         # REMOVE, temporary for testing
-        self.left_path.insert(0, "D:\Documents\Ämnen")
-        self.right_path.insert(0, "D:\Documents\Gymnasiet")
+        self.left_path.insert(0, r"D:\Documents\Ämnen")
+        self.right_path.insert(0, r"D:\Documents\Gymnasiet")
 
         self.left_path.grid(row=1, column=0, padx=(10, 0))
         self.right_path.grid(row=1, column=2)
         tk.Button(paths, text="Swap", command=self.swap, width=5) \
             .grid(row=1, column=1, padx=5)
         self.load_str = tk.StringVar(value="Load")
-        tk.Button(paths, textvariable=self.load_str, command=self.load, width=5) \
+        tk.Button(paths, textvariable=self.load_str,
+                  command=self.load, width=5) \
             .grid(row=1, column=3, padx=(5, 0))
         paths.pack()
 
     @staticmethod
     def open_file(file):
         """Wrapper for opening a back.File file."""
-        path = file.full_name
-        def func(path=path):
+        def func(path=file.full_name):
             os.startfile(path)
         return func
 
@@ -112,13 +107,14 @@ class ComparePathsWindow(tk.Frame):
         bottom_head.pack(fill="both")
 
         bottom_body = tk.Frame(self.bottom_container)
-
-            #.grid(row=0, column=1, sticky="e")
-        #, height=self.controller.screenheight*0.8
         bottom_canvas = tk.Canvas(bottom_body)
-        scrollbar = tk.Scrollbar(bottom_body, orient="vertical", command=bottom_canvas.yview)
+        scrollbar = tk.Scrollbar(bottom_body, orient="vertical",
+                                 command=bottom_canvas.yview)
         bottom = tk.Frame(bottom_canvas)
-        bottom.bind("<Configure>", lambda e: bottom_canvas.configure(scrollregion=bottom_canvas.bbox("all")))
+        bottom.bind("<Configure>",
+                    lambda e: bottom_canvas.configure(
+                        scrollregion=bottom_canvas.bbox("all"))
+                    )
         bottom_canvas.create_window((0, 0), window=bottom, anchor="nw")
         bottom_canvas.configure(yscrollcommand=scrollbar.set)
 
@@ -133,13 +129,13 @@ class ComparePathsWindow(tk.Frame):
         # Missing files
         tk.Label(bottom, text="Missing files (from main):",
                  font=self.controller.large_font) \
-                 .grid(row=0, column=0, sticky="w", columnspan=2)
+            .grid(row=0, column=0, sticky="w", columnspan=2)
         for i, file in enumerate(compare_paths.not_found, start=1):
             tk.Label(bottom, text=file.long_name, wraplength=label_width) \
                 .grid(row=i, column=0, columnspan=2, sticky="w", padx=indent)
             tk.Button(bottom, text="Open",
                       command=self.open_file(file)) \
-                      .grid(row=i, column=2, sticky="we")
+                .grid(row=i, column=2, sticky="we")
             self.keep_buttons[i] = tk.Button(bottom, text="Move",
                                              width=width,
                                              command=self.keep(file, i))
@@ -159,10 +155,10 @@ class ComparePathsWindow(tk.Frame):
                 .grid(row=j, column=1)
             tk.Button(bottom, text="Open main",
                       command=self.open_file(main)) \
-                      .grid(row=j, column=2, sticky="we")
+                .grid(row=j, column=2, sticky="we")
             tk.Button(bottom, text="Open other",
                       command=self.open_file(comp)) \
-                      .grid(row=j, column=3, sticky="we")
+                .grid(row=j, column=3, sticky="we")
             self.keep_buttons[j] = {}
             self.keep_buttons[j]["main"] = tk.Button(bottom,
                                                      text="Keep main",
@@ -176,11 +172,8 @@ class ComparePathsWindow(tk.Frame):
             self.delete_buttons[j].grid(row=j, column=6, sticky="we")
         for i in range(4):
             bottom.grid_columnconfigure(i, weight=1)
-        #bottom.grid(row=0, column=0, sticky="nwe")
         bottom_canvas.pack(side="left", fill="both", expand=True)
-        # bottom_canvas.grid(row=1, column=0, sticky="nsew")
         scrollbar.pack(side="left", fill="y", pady=5)
-        #scrollbar.grid(row=1, column=1, sticky="nse")
         bottom_body.pack(fill="both", expand=True)
         self.bottom_container.pack(fill="both", expand=True)
 
@@ -244,7 +237,6 @@ class ComparePathsWindow(tk.Frame):
         tk.Button(popup, text="No", default="active", font=font,
                   command=popup.destroy) \
             .grid(row=1, column=1, sticky="we")
-
 
     def keep(self, files, id, type_=None):
         """Keep this file and remove alternetives, wrapper.

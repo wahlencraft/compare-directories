@@ -2,6 +2,7 @@ import os
 
 DEBUG = False
 
+
 class ComparePaths:
     """Find all files in one directory that is missing in another."""
 
@@ -51,7 +52,7 @@ class ComparePaths:
     def split(path, lst=None):
         """Split a path to a list."""
         empty = ("/", "\\", "")
-        if lst == None:
+        if lst is None:
             lst = []
         if path in empty:
             return lst
@@ -70,6 +71,7 @@ class ComparePaths:
             for filename in filenames:
                 lst.append(File(filename, dirpath, self.main_path))
         return sorted(lst)
+
 
 class File:
     """Store data for a file, is comparable."""
@@ -95,7 +97,6 @@ class File:
             return True
         else:
             return False
-
 
     def __repr__(self):
         return f"File({self.name}, {self.dirpath})"
@@ -124,7 +125,7 @@ class File:
         for dirpath, dirnames, filenames in os.walk(self.main_path):
             current_common = os.path.commonpath([dirpath, self.full_name])
             cur_len = len(ComparePaths.split(current_common))
-            if cur_len > long or (cur_len == long and \
+            if cur_len > long or (cur_len == long and
                os.path.basename(self.dirpath) == os.path.basename(dirpath)):
                 long = cur_len
                 longest_common = dirpath
@@ -135,7 +136,6 @@ class File:
             print("REMOVE", new_path)
         print("RENAME", self.full_name, new_path)
         os.rename(self.full_name, new_path)
-
 
 
 if __name__ == "__main__":
