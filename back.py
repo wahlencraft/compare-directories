@@ -23,6 +23,7 @@ class ComparePaths:
         self.changed = []
         print()
         print(comp, main)
+        self.found_in_both = 0
         while comp_list:
             if comp < main:
                 # comp is before in the que
@@ -41,12 +42,20 @@ class ComparePaths:
                 # comp and main has the same name
                 if comp.size != main.size:
                     self.changed.append((main, comp))
+                else:
+                    self.found_in_both += 1
                 if main_list:
                     comp = comp_list.pop()
                     main = main_list.pop()
                 else:
                     # main_list is empty
+                    self.not_found.append(comp)
+                    self.not_found += comp_list
                     comp_list = []
+        if DEBUG:
+            print("Not found:", self.not_found)
+            print("Changed:", self.changed)
+            print(self.found_in_both, "files found in both")
 
     @staticmethod
     def split(path, lst=None):
