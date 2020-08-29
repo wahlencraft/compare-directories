@@ -77,7 +77,7 @@ class ComparePathsWindow(tk.Frame):
         return func
 
     def load(self):
-        """Compare the paths."""
+        """Compare the paths and show the result."""
         self.load_str.set("Reload")
         paths = []
         for entry in (self.left_path, self.right_path):
@@ -98,6 +98,9 @@ class ComparePathsWindow(tk.Frame):
         self.bottom_container = tk.Frame(self)
 
         bottom_head = tk.Frame(self.bottom_container)
+        found_both_msg = f"Found {compare_paths.found_in_both} identical files"
+        tk.Label(bottom_head, text=found_both_msg) \
+            .pack(side="left", padx=100)
         tk.Button(bottom_head, text="Apply", command=self.apply) \
             .pack(side="right")
         bottom_head.pack(fill="both")
