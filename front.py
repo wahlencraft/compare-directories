@@ -126,6 +126,7 @@ class ComparePathsWindow(tk.Frame):
         tk.Label(bottom, text="Missing files (from main):",
                  font=self.controller.large_font) \
             .grid(row=0, column=0, sticky="w", columnspan=2)
+        i = 0  # Dont crash if compare_paths.not_found empty
         for i, file in enumerate(compare_paths.not_found, start=1):
             tk.Label(bottom, text=file.long_name, wraplength=label_width) \
                 .grid(row=i, column=0, columnspan=2, sticky="w", padx=indent)
